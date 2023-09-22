@@ -13,3 +13,5 @@ dist/
 
 # Logs
 logs/
+
+.wwebjs_cache/
