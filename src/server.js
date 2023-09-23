@@ -60,6 +60,26 @@ client.on("ready", () => {
     console.log(group);
     res.send("group created successfully");
   });
+  app.post("/get-common-groups", async (req, res) => {
+    const groups = await client.getCommonGroups(req.body.contactId);
+
+    console.log("groups");
+    console.log(groups);
+
+    res.send(groups);
+  });
+  app.post("/get-contacts", async (req, res) => {
+    const getContacts = await client.getContacts();
+    console.log("getContacts");
+    console.log(getContacts);
+    res.send(getContacts);
+  });
+  app.get("/get-chats", async (req, res) => {
+    const getChats = await client.getChats();
+    console.log("getChats");
+    console.log(getChats);
+    res.send(getChats);
+  });
 });
 
 // Handle incoming messages
