@@ -3,6 +3,9 @@ const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 
 const app = express();
+let qrCodeData = "";
+let groupId = "";
+
 const client = new Client({
   authStrategy: new LocalAuth(),
   // proxyAuthentication: { username: 'username', password: 'password' },
@@ -25,7 +28,15 @@ app.use(express.static("public"));
 client.on("qr", (qr) => {
   // Generate and scan this code with your phone
   console.log("QR RECEIVED", qr);
-  qrcode.generate(qr, { small: true });
+  qrCodeData = qr;
+});
+
+app.get("/qr-code", (req, res) => {
+  // Generate QR code
+  qrcode.generate(qrCodeData, { small: true }, (qrCode) => {
+    // Send the QR code as a response
+    res.send(qrCode);
+  });
 });
 
 client.on("ready", () => {
@@ -36,6 +47,18 @@ client.on("ready", () => {
     // https://stackoverflow.com/questions/66509264/what-is-c-us-means-in-whatsapp-web-js
     client.sendMessage(req.body.number, req.body.message);
     res.send("Message sent successfully");
+  });
+  app.post("/grop-send-message", (req, res) => {
+    client.sendMessage(groupId, req.body.message);
+    res.send("Message sent successfully");
+  });
+  app.post("/create-group", (req, res) => {
+    const group = client.createGroup(req.body.group_name, [
+      "201153198183@c.us",
+      "201150064746@c.us",
+    ]);
+    console.log(group);
+    res.send("group created successfully");
   });
 });
 
@@ -71,6 +94,12 @@ client.on("auth_failure", (msg) => {
 
 client.on("message", async (msg) => {
   console.log("MESSAGE RECEIVED", msg);
+  console.log("MESSAGE from", msg.from);
+  if (msg.from.includes("@g.us")) {
+    console.log("MESSAGE from group ", groupId);
+    // save groupId so we can use it later when use sendmessagetogroup {{url}}/grop-send-message
+    groupId = msg.from;
+  }
 
   if (msg.body === "!ping reply") {
     // Send a new message as a reply to the current one
