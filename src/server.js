@@ -6,6 +6,16 @@ const app = express();
 let qrCodeData = "";
 let groupId = "";
 let isAuthenticated = false;
+
+
+// TODO: use corsOptions
+// const corsOptions = {
+//   origin: 'https://qurantalent.net',
+//   optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+// };
+
+// app.use(cors(corsOptions));
+
 app.use(cors());
 
 
