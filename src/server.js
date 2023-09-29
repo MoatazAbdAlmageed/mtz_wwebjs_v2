@@ -1,22 +1,19 @@
 const express = require("express");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
-
+const cors = require('cors');
 const app = express();
 let qrCodeData = "";
 let groupId = "";
+let isAuthenticated = false;
+app.use(cors());
 
+
+// Start the client
 const client = new Client({
   authStrategy: new LocalAuth(),
-  // proxyAuthentication: { username: 'username', password: 'password' },
-  // puppeteer: {
-  //   // args: ['--proxy-server=proxy-server-that-requires-authentication.example.com'],
-  //   headless: false,
-  // },
-  // // puppeteer: {
-  // //   args: ["--no-sandbox"],
-  // // },
 });
+
 
 // Set up middleware to parse request bodies
 app.use(express.json());
@@ -32,6 +29,22 @@ client.on("qr", (qr) => {
 });
 
 app.get("/qr-code", (req, res) => {
+  // Generate QR codei
+  if (!qrCodeData) {
+    res.send('no code data')
+  }
+  qrcode.generate(qrCodeData, { small: true }, (qrCode) => {
+    // Send the QR code as a response
+    res.send(qrCode);
+  });
+});
+
+
+
+app.get("/generate-qr-code", (req, res) => {
+  if (!qrCodeData) {
+    res.send("No QR Code RECEIVED", 500);
+  }
   // Generate QR code
   qrcode.generate(qrCodeData, { small: true }, (qrCode) => {
     // Send the QR code as a response
@@ -39,87 +52,134 @@ app.get("/qr-code", (req, res) => {
   });
 });
 
-client.on("ready", () => {
-  console.log("Client is ready!");
-  app.post("/send-message", (req, res) => {
-    //     <number>@c.us -- the <number> is user id
-    // <number>@g.us -- the <number> is group id
-    // https://stackoverflow.com/questions/66509264/what-is-c-us-means-in-whatsapp-web-js
-    client.sendMessage(req.body.number, req.body.message);
-    res.send("Message sent successfully");
-  });
-  app.post("/grop-send-message", (req, res) => {
-    client.sendMessage(groupId, req.body.message);
-    res.send("Message sent successfully");
-  });
-  app.post("/create-group", (req, res) => {
-    const group = client.createGroup(req.body.group_name, [
-      "201153198183@c.us",
-      "201150064746@c.us",
-    ]);
-    console.log(group);
-    res.send("group created successfully");
-  });
-  app.post("/get-common-groups", async (req, res) => {
-    const groups = await client.getCommonGroups(req.body.contactId);
-
-    console.log("groups");
-    console.log(groups);
-
-    res.send(groups);
-  });
-  app.post("/get-contacts", async (req, res) => {
-    const getContacts = await client.getContacts();
-    console.log("getContacts");
-    console.log(getContacts);
-    res.send(getContacts);
-  });
-  app.get("/get-chats", async (req, res) => {
-    const getChats = await client.getChats();
-    console.log("getChats");
-    console.log(getChats);
-    res.send(getChats);
-  });
+app.get("/raw-qr-code", (req, res) => {
+  if (!qrCodeData) {
+    res.send("No QR Code RECEIVED", 500);
+  }
+  // Send the QR code as a response
+  res.send(qrCodeData);
 });
 
-// Handle incoming messages
-// client.on("message", (message) => {
-//   console.log("Received message:", message.body);
-//   client.sendMessage(message.from, "pong");
-// });
+app.get("/get-chats", (req, res) => {
+  if (!isAuthenticated) {
+    unifyMessage(new Error("You are not authenticated"), res);
+  }
+  const chats = client.getChats();
+  res.send(chats);
+
+});
+
+app.get("/is-authenticated", (req, res) => {
+  res.send(isAuthenticated);
+});
+
+client.on("ready", () => {
+
+  console.log("Client is ready!");
+
+});
+
+
+app.post("/logout", async (req, res) => {
+  if (!isAuthenticated) {
+    unifyMessage(new Error("You are not authenticated"), res);
+  }
+  await client.logout();
+  isAuthenticated = false;
+  const unifiedMessage = unifyMessage("logout done successfully", res);
+  console.log(unifiedMessage);
+});
+
+
+app.post("/send-message", (req, res) => {
+  if (!isAuthenticated) {
+    unifyMessage(new Error("You are not authenticated"), res);
+  }
+  // number should be group id like 120363164648354136@g.us or account id like  201150064746@c.us
+  client.sendMessage(req.body.number, req.body.message);
+  const successMessage = "Message sent successfully!";
+  unifyMessage(successMessage, res);
+});
+
+
+
+app.post("/send-message-to-group", async (req, res) => {
+
+  // if you passed group name will find it's id and send it
+  // if group name not passed it will use saved groupId from created group endpoint
+  if (!isAuthenticated) {
+    unifyMessage(new Error("You are not authenticated"), res);
+  }
+
+  if (req.body.groupName) {
+    // Get a list of all of the user's chats
+    const chats = await client.getChats();
+    // Check to make sure that the chats object is not empty
+    if (chats.length > 0) {
+      // res.send(chats); // TODO::remove me  just for debugging:)
+      // Iterate over the list of chats and search for the group by name
+      const groupChat = chats.find((chat) => chat.isGroup && chat.name === req.body.groupName);
+      // res.send(groupChat); // TODO::remove me  just for debugging:)
+      // Get the group ID
+      groupId = groupChat.id._serialized;
+      client.sendMessage(groupId, req.body.message);
+      const successMessage = `Message sent successfully! to ${groupId}`;
+      unifyMessage(successMessage, res);
+
+    }
+    res.send("sending ....");
+
+  } else {
+    if (!groupId) {
+      res.send("cannot find the group try to create a new group or pass group name!");
+    }
+    client.sendMessage(groupId, req.body.message);
+    const successMessage = `Message sent successfully! to ${groupId}`;
+    unifyMessage(successMessage, res);
+
+  }
+
+
+});
+
+app.post("/create-group", async (req, res) => {
+  if (!isAuthenticated) {
+    unifyMessage(new Error("You are not authenticated"), res);
+  }
+  const group = await client.createGroup(req.body.group_name, req.body.members);
+  console.log(group);
+
+  // save groupId so we can use it later when use sendmessagetogroup {{url}}/send-message-to-group
+  groupId = group.gid._serialized;
+
+  res.send(groupId);
+});
+
+
+
 
 client.on("loading_screen", (percent, message) => {
   console.log("LOADING SCREEN", percent, message);
 });
 
-client.on("qr", (qr) => {
-  // NOTE: This event will not be fired if a session is specified.
-  console.log("QR RECEIVED", qr);
-});
 
 client.on("authenticated", () => {
+  isAuthenticated = true;
   console.log("AUTHENTICATED");
 });
 
 client.on("auth_failure", (msg) => {
+  isAuthenticated = false;
   // Fired if session restore was unsuccessful
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-// client.on("ready", () => {
-//   console.log("READY");
-// });
 
 // Handle incoming messages
 
 client.on("message", async (msg) => {
   console.log("MESSAGE RECEIVED", msg);
   console.log("MESSAGE from", msg.from);
-  if (msg.from.includes("@g.us")) {
-    console.log("MESSAGE from group ", groupId);
-    // save groupId so we can use it later when use sendmessagetogroup {{url}}/grop-send-message
-    groupId = msg.from;
-  }
 
   if (msg.body === "!ping reply") {
     // Send a new message as a reply to the current one
@@ -422,12 +482,9 @@ client.on("call", async (call) => {
   if (rejectCalls) await call.reject();
   await client.sendMessage(
     call.from,
-    `[${call.fromMe ? "Outgoing" : "Incoming"}] Phone call from ${
-      call.from
-    }, type ${call.isGroup ? "group" : ""} ${
-      call.isVideo ? "video" : "audio"
-    } call. ${
-      rejectCalls ? "This call was automatically rejected by the script." : ""
+    `[${call.fromMe ? "Outgoing" : "Incoming"}] Phone call from ${call.from
+    }, type ${call.isGroup ? "group" : ""} ${call.isVideo ? "video" : "audio"
+    } call. ${rejectCalls ? "This call was automatically rejected by the script." : ""
     }`
   );
 });
@@ -442,14 +499,13 @@ client.on("contact_changed", async (message, oldId, newId, isContact) => {
 
   console.log(
     `The contact ${oldId.slice(0, -5)}` +
-      `${
-        !isContact
-          ? " that participates in group " +
-            `${(await client.getChatById(message.to ?? message.from)).name} `
-          : " "
-      }` +
-      `changed their phone number\nat ${eventTime}.\n` +
-      `Their new phone number is ${newId.slice(0, -5)}.\n`
+    `${!isContact
+      ? " that participates in group " +
+      `${(await client.getChatById(message.to ?? message.from)).name} `
+      : " "
+    }` +
+    `changed their phone number\nat ${eventTime}.\n` +
+    `Their new phone number is ${newId.slice(0, -5)}.\n`
   );
 
   /**
@@ -492,10 +548,8 @@ client.on("group_admin_changed", (notification) => {
 
 // Define routes
 app.get("/", (req, res) => {
-  res.send("Hello, WhatsApp!");
+  res.send("Hello,!");
 });
-
-// Start the client
 client.initialize();
 
 // Start the server
@@ -503,3 +557,13 @@ const port = 3000;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+
+function unifyMessage(message, res) {
+  if (message instanceof Error) {
+    res.statusCode = 500;
+    res.send(message.message);
+  } else {
+    res.send(message);
+  }
+}
