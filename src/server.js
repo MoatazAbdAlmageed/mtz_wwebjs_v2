@@ -65,11 +65,13 @@ app.get("/qr-code", (req, res) => {
 
 app.get("/get-chats", async (req, res) => {
   if (!isAuthenticated) {
-    unifyMessage(new Error("You are not authenticated"), res);
+    return res.status(401).json({ error: "You are not authenticated" });
+
   }
   const chats = await client.getChats();
   if (!chats.length > 0) {
-    unifyMessage(new Error("No chats found"), res);
+    return res.status(200).json({ data: "No chats" });
+
   }
   res.send(chats);
 
@@ -86,26 +88,27 @@ client.on("ready", () => {
 
 app.post("/logout", async (req, res) => {
   if (!isAuthenticated) {
-    unifyMessage(new Error("You are not authenticated"), res);
+    return res.status(401).json({ error: "You are not authenticated" });
+
   }
   await client.logout();
   await client.destroy();
   isAuthenticated = false;
-  const unifiedMessage = unifyMessage("logout done successfully", res);
-  console.log(unifiedMessage);
+  return res.status(200).json({ data: "logout done successfully!" });
 });
+
 
 
 app.post("/send-message", async (req, res) => {
   if (!isAuthenticated) {
-    unifyMessage(new Error("You are not authenticated"), res);
+    return res.status(401).json({ error: "You are not authenticated" });
+
   }
   // number should be group id like 120363164648354136@g.us or account id like  201150064746@c.us
   const result = await client.sendMessage(req.body.number, req.body.message);
   console.log(result)
   if (result) {
-    const successMessage = "Message sent successfully!";
-    unifyMessage(successMessage, res);
+    return res.status(200).json({ data: "Message sent successfully!" });
   }
 });
 
@@ -150,7 +153,7 @@ app.post("/send-group-message", async (req, res) => {
 
   // Send a success response
   const successMessage = "Message sent successfully!";
-  return res.json({ message: successMessage });
+  return res.json({ data: successMessage });
 });
 
 
@@ -160,10 +163,12 @@ app.post("/send-to-all", async (req, res) => {
   // if you passed group name will find it's id and send it
   // if group name not passed it will use saved groupId from created group endpoint
   if (!isAuthenticated) {
-    unifyMessage(new Error("You are not authenticated"), res);
+    return res.status(401).json({ error: "You are not authenticated" });
+
   }
   if (!req.body.sendToContacts && !req.body.sendToContacts) {
-    unifyMessage(new Error("shoul pass sendToContacts or  sendToContacts"), res);
+    return res.status(400).json({ error: "shoul pass sendToContacts or  sendToContacts" });
+
   }
 
   // Get a list of all of the user's chats
@@ -179,8 +184,8 @@ app.post("/send-to-all", async (req, res) => {
         chat.isGroup && client.sendMessage(chat.id._serialized, `${req.body.message}  via whatsapp bot`)
       }
     });
-    const successMessage = `Message sent successfully!}`;
-    unifyMessage(successMessage, res);
+    return res.status(200).json({ data: "Message sent successfully!" });
+
   }
 
 });
@@ -188,7 +193,8 @@ app.post("/send-to-all", async (req, res) => {
 
 app.post("/create-group", async (req, res) => {
   if (!isAuthenticated) {
-    unifyMessage(new Error("You are not authenticated"), res);
+    return res.status(401).json({ error: "You are not authenticated" });
+
   }
   const group = await client.createGroup(req.body.group_name, req.body.members);
   console.log(group);
@@ -619,12 +625,3 @@ app.listen(port, () => {
 //     console.log("Server started at port 3000");
 //   });
 
-
-function unifyMessage(message, res) {
-  if (message instanceof Error) {
-    res.statusCode = 500;
-    return res.send(message.message);
-  } else {
-    return res.send(message);
-  }
-}
