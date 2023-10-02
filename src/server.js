@@ -26,7 +26,14 @@ app.use(cors());
 // Start the client
 const client = new Client({
   authStrategy: new LocalAuth(),
+  restartOnAuthFail: true, // related problem solution
+  puppeteer: {
+    headless: true,
+    args: ['--no-sandbox']
+  }
 });
+
+
 
 
 // Set up middleware to parse request bodies
@@ -94,7 +101,6 @@ app.post("/logout", async (req, res) => {
 
   }
   await client.logout();
-  await client.destroy();
   isAuthenticated = false;
   return res.status(200).json({ data: "logout done successfully!" });
 });
@@ -545,6 +551,10 @@ client.on("call", async (call) => {
 
 client.on("disconnected", (reason) => {
   console.log("Client was logged out", reason);
+  // Destroy and reinitialize the client when disconnected
+  client.destroy();
+  client.initialize();
+
 });
 
 client.on("contact_changed", async (message, oldId, newId, isContact) => {
