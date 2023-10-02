@@ -8,6 +8,8 @@ const cors = require('cors');
 const app = express();
 let qrCodeData = "";
 let isAuthenticated = false;
+const port = 3000;
+
 
 
 // TODO: use corsOptions
@@ -605,7 +607,6 @@ app.get("/", (req, res) => {
 client.initialize();
 
 // Start the server
-const port = 9090;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
