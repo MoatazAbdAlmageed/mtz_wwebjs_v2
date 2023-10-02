@@ -8,7 +8,6 @@ const cors = require('cors');
 const app = express();
 let qrCodeData = "";
 let isAuthenticated = false;
-let profile = {};
 
 
 // TODO: use corsOptions
@@ -211,6 +210,7 @@ client.on("loading_screen", (percent, message) => {
 
 client.on("authenticated", () => {
   isAuthenticated = true;
+  //  TODO::save client data here
   console.log("AUTHENTICATED");
 });
 
