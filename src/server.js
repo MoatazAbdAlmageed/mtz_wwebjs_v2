@@ -111,43 +111,47 @@ app.post("/send-message", async (req, res) => {
 });
 
 
-
 app.post("/send-group-message", async (req, res) => {
-
-  // if you passed group name will find it's id and send it
-  // if group name not passed it will use saved groupId from created group endpoint
+  // Check if the user is authenticated (implementation required)
   if (!isAuthenticated) {
-    unifyMessage(new Error("You are not authenticated"), res);
+    return res.status(401).json({ error: "You are not authenticated" });
   }
 
+  // Check if the groupName is provided
   if (!req.body.groupName) {
-    unifyMessage(new Error("groupName required"), res);
+    return res.status(400).json({ error: "groupName required" });
   }
+
   // Get a list of all of the user's chats
   const chats = await client.getChats();
-  // Check to make sure that the chats object is not empty
-  if (!chats.length > 0) {
-    unifyMessage(new Error("No chats found"), res);
+
+  // Check if the chats array is empty
+  if (chats.length === 0) {
+    return res.status(404).json({ error: "No chats found" });
   }
-  // res.send(chats); // TODO::remove me  just for debugging:)
-  // Iterate over the list of chats and search for the group by name
+
+  // Find the group chat by name
   const groupChat = chats.find((chat) => chat.isGroup && chat.name === req.body.groupName);
 
-  if (typeof groupChat === "undefined") {
-    unifyMessage(new Error("group not found"), res);
+  // Check if the group chat is found
+  if (!groupChat) {
+    return res.status(404).json({ error: "Group not found" });
   }
 
-  // res.send(groupChat); // TODO::remove me  just for debugging:)
   // Get the group ID
   const groupId = groupChat.id._serialized;
-  const result = await client.sendMessage(groupId, req.body.message);
-  console.log(result)
-  if (!result) {
-    unifyMessage(new Error("error"), res);
-  }
-  const successMessage = "Message sent successfully!";
-  unifyMessage(successMessage, res);
 
+  // Send the message to the group
+  const result = await client.sendMessage(groupId, req.body.message);
+
+  // Check if there was an error sending the message
+  if (result === undefined) {
+    return res.status(500).json({ error: "Error sending message" });
+  }
+
+  // Send a success response
+  const successMessage = "Message sent successfully!";
+  return res.json({ message: successMessage });
 });
 
 
@@ -158,6 +162,9 @@ app.post("/send-to-all", async (req, res) => {
   // if group name not passed it will use saved groupId from created group endpoint
   if (!isAuthenticated) {
     unifyMessage(new Error("You are not authenticated"), res);
+  }
+  if (!req.body.sendToContacts && !req.body.sendToContacts) {
+    unifyMessage(new Error("shoul pass sendToContacts or  sendToContacts"), res);
   }
 
   // Get a list of all of the user's chats
