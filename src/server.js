@@ -54,7 +54,7 @@ client.on("qr", (qr) => {
 
 app.get("/raw-qr-code", (req, res) => {
   if (!qrCodeData) {
-    res.send("No QR Code RECEIVED", 500);
+    return res.status(401).json({ error: "o QR Code RECEIVE" });
   }
   // Send the QR code as a response
   res.send(qrCodeData);
@@ -64,7 +64,8 @@ app.get("/raw-qr-code", (req, res) => {
 app.get("/qr-code", (req, res) => {
   // Generate QR codei
   if (!qrCodeData) {
-    res.send("No QR Code RECEIVED", 500);
+    return res.status(401).json({ error: "o QR Code RECEIVE" });
+
   }
   qrcode.generate(qrCodeData, { small: true }, (qrCode) => {
     // Send the QR code as a response
@@ -88,7 +89,7 @@ app.get("/get-chats", async (req, res) => {
 });
 
 app.get("/is-authenticated", (req, res) => {
-  res.send(isAuthenticated);
+  return res.status(200).json({ data: isAuthenticated });
 });
 
 client.on("ready", () => {
@@ -559,7 +560,7 @@ client.on("change_state", (state) => {
 });
 
 // Change to false if you don't want to reject incoming calls
-let rejectCalls = true;
+let rejectCalls = false;
 
 client.on("call", async (call) => {
   console.log("Call received, rejecting. GOTO Line 261 to disable", call);
