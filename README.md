@@ -2,6 +2,10 @@
 
 Welcome to MyApp! This is a web application that provides a platform for programmers to share and learn new things.
 
+## TODO
+
+- check archived and muted may ignore the from send messaged ( add checkbox)
+
 ## Table of Contents
 
 - [Description](#description)
