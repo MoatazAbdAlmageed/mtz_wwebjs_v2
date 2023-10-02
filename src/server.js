@@ -1,5 +1,5 @@
 const express = require("express");
-const { Client, LocalAuth, LegacySessionAuth } = require("whatsapp-web.js");
+const { Client, LegacySessionAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 // const https = require("https");
 const cors = require('cors');
