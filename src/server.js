@@ -4,6 +4,7 @@ const qrcode = require("qrcode-terminal");
 // const https = require("https");
 const cors = require('cors');
 // const fs = require('fs');
+const { exec } = require('child_process');
 
 const app = express();
 let qrCodeData = "";
@@ -95,16 +96,32 @@ client.on("ready", () => {
 });
 
 
-app.post("/logout", async (req, res) => {
-  if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
+// app.post("/logout", async (req, res) => {
+//   if (!isAuthenticated) {
+//     return res.status(401).json({ error: "You are not authenticated" });
 
-  }
-  await client.destroy();
-  isAuthenticated = false;
-  return res.status(200).json({ data: "logout done successfully!" });
+//   }
+//   await client.destroy();
+//   isAuthenticated = false;
+//   return res.status(200).json({ data: "logout done successfully!" });
+// });
+
+
+app.get('/logout', (req, res) => {
+  // Run the command to restart the PM2 process
+  exec('sudo -u nodejs pm2 restart hello', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing command: ${error.message}`);
+      return res.status(500).json({ error: 'Error executing command' });
+    }
+    if (stderr) {
+      console.error(`Command execution error: ${stderr}`);
+      return res.status(500).json({ error: 'Command execution error' });
+    }
+    console.log(`Command output: ${stdout}`);
+    return res.json({ message: 'Logout successful' });
+  });
 });
-
 
 
 app.post("/send-message", async (req, res) => {
