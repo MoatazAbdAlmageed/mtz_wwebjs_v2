@@ -107,7 +107,14 @@ client.on("ready", () => {
 // });
 
 
-app.get('/logout', (req, res) => {
+app.get('/logout', async (req, res) => {
+  if (!isAuthenticated) {
+    return res.status(401).json({ error: "You are not authenticated" });
+
+  }
+  await client.logout();
+  isAuthenticated = false;
+
   // Run the command to restart the PM2 process
   exec('sudo -u nodejs pm2 restart hello', (error, stdout, stderr) => {
     if (error) {
