@@ -576,8 +576,8 @@ client.on("call", async (call) => {
 client.on("disconnected", (reason) => {
   console.log("Client was logged out", reason);
   // Destroy and reinitialize the client when disconnected
-  client.destroy();
-  client.initialize();
+  // client.destroy();
+  // client.initialize();
 
 });
 
