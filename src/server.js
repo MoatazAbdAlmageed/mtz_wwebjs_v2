@@ -100,7 +100,7 @@ app.post("/logout", async (req, res) => {
     return res.status(401).json({ error: "You are not authenticated" });
 
   }
-  await client.logout();
+  await client.destroy();
   isAuthenticated = false;
   return res.status(200).json({ data: "logout done successfully!" });
 });
