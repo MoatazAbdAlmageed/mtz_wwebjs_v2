@@ -10,7 +10,7 @@ const app = express();
 let qrCodeData = "";
 let isAuthenticated = false;
 const port = 3000;
-
+let currentClientPhoneNumber = "";
 
 
 // TODO: use corsOptions
@@ -45,6 +45,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 client.on("qr", (qr) => {
+  console.log("client.qr");
+
   // Generate and scan this code with your phone
   console.log("QR RECEIVED", qr);
   qrCodeData = qr;
@@ -88,11 +90,18 @@ app.get("/get-chats", async (req, res) => {
 
 });
 
-app.get("/is-authenticated", (req, res) => {
+app.get("/is-authenticated", async (req, res) => {
+  const chats = await client.getChats();
+  if (chats?.length) {
+    console.log(chats[0])
+    isAuthenticated = chats[0]?.lastMessage.to;
+  }
   return res.status(200).json({ data: isAuthenticated });
 });
 
 client.on("ready", () => {
+  console.log("client.ready");
+
   console.log("Client is ready!");
 });
 
@@ -243,17 +252,20 @@ app.post("/create-group", async (req, res) => {
 
 
 client.on("loading_screen", (percent, message) => {
+  console.log("client.loading_screen");
+
   console.log("LOADING SCREEN", percent, message);
 });
 
 
 client.on("authenticated", () => {
+  console.log("client.authenticated");
   isAuthenticated = true;
-  //  TODO::save client data here
-  console.log("AUTHENTICATED");
 });
 
 client.on("auth_failure", (msg) => {
+  console.log("client.auth_failure");
+
   isAuthenticated = false;
   // Fired if session restore was unsuccessful
   console.error("AUTHENTICATION FAILURE", msg);
@@ -263,8 +275,13 @@ client.on("auth_failure", (msg) => {
 // Handle incoming messages
 
 client.on("message", async (msg) => {
+  console.log("client.message");
+
   console.log("MESSAGE RECEIVED", msg);
   console.log("MESSAGE from", msg.from);
+  console.log("MESSAGE to", msg.to);
+  currentClientPhoneNumber = msg.to;
+  isAuthenticated = currentClientPhoneNumber;
 
   if (msg.body === "!ping reply") {
     // Send a new message as a reply to the current one
@@ -503,6 +520,7 @@ client.on("message", async (msg) => {
 });
 
 client.on("message_create", (msg) => {
+  console.log("client.message_create");
   // Fired on all message creations, including your own
   if (msg.fromMe) {
     // do stuff here
@@ -510,6 +528,7 @@ client.on("message_create", (msg) => {
 });
 
 client.on("message_revoke_everyone", async (after, before) => {
+  console.log("client.message_revoke_everyone");
   // Fired whenever a message is deleted by anyone (including you)
   console.log(after); // message after it was deleted.
   if (before) {
@@ -518,11 +537,15 @@ client.on("message_revoke_everyone", async (after, before) => {
 });
 
 client.on("message_revoke_me", async (msg) => {
+  console.log("client.message_revoke_me");
+
   // Fired whenever a message is only deleted in your own view.
   console.log(msg.body); // message before it was deleted.
 });
 
 client.on("message_ack", (msg, ack) => {
+  console.log("client.message_ack");
+
   /*
       == ACK VALUES ==
       ACK_ERROR: -1
@@ -539,23 +562,31 @@ client.on("message_ack", (msg, ack) => {
 });
 
 client.on("group_join", (notification) => {
+  console.log("client.group_join");
+
   // User has joined or been added to the group.
   console.log("join", notification);
   notification.reply("User joined.");
 });
 
 client.on("group_leave", (notification) => {
+  console.log("client.group_leave");
+
   // User has left or been kicked from the group.
   console.log("leave", notification);
   notification.reply("User left.");
 });
 
 client.on("group_update", (notification) => {
+  console.log("client.group_update");
+
   // Group picture, subject or description has been updated.
   console.log("update", notification);
 });
 
 client.on("change_state", (state) => {
+  console.log("client.change_state");
+
   console.log("CHANGE STATE", state);
 });
 
@@ -563,6 +594,8 @@ client.on("change_state", (state) => {
 let rejectCalls = false;
 
 client.on("call", async (call) => {
+  console.log("client.call");
+
   console.log("Call received, rejecting. GOTO Line 261 to disable", call);
   if (rejectCalls) await call.reject();
   await client.sendMessage(
@@ -575,6 +608,8 @@ client.on("call", async (call) => {
 });
 
 client.on("disconnected", (reason) => {
+  console.log("client.disconnected");
+
   console.log("Client was logged out", reason);
   // Destroy and reinitialize the client when disconnected
   // client.destroy();
@@ -583,6 +618,8 @@ client.on("disconnected", (reason) => {
 });
 
 client.on("contact_changed", async (message, oldId, newId, isContact) => {
+  console.log("client.contact_changed");
+
   /** The time the event occurred. */
   const eventTime = new Date(message.timestamp * 1000).toLocaleString();
 
@@ -624,6 +661,8 @@ client.on("contact_changed", async (message, oldId, newId, isContact) => {
 });
 
 client.on("group_admin_changed", (notification) => {
+  console.log("client.group_admin_changed");
+
   if (notification.type === "promote") {
     /**
      * Emitted when a current user is promoted to an admin.
