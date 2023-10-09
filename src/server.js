@@ -56,7 +56,7 @@ client.on("qr", (qr) => {
 
 app.get("/raw-qr-code", (req, res) => {
   if (!qrCodeData) {
-    return res.status(401).json({ error: "o QR Code RECEIVE" });
+    return res.status(401).json({ status: 401, error: "o QR Code RECEIVE" });
   }
   // Send the QR code as a response
   res.send(qrCodeData);
@@ -66,7 +66,7 @@ app.get("/raw-qr-code", (req, res) => {
 app.get("/qr-code", (req, res) => {
   // Generate QR codei
   if (!qrCodeData) {
-    return res.status(401).json({ error: "o QR Code RECEIVE" });
+    return res.status(401).json({ status: 401, error: "o QR Code RECEIVE" });
 
   }
   qrcode.generate(qrCodeData, { small: true }, (qrCode) => {
@@ -86,12 +86,12 @@ client.on("ready", () => {
 
   app.get("/get-chats", async (req, res) => {
     if (!isAuthenticated) {
-      return res.status(401).json({ error: "You are not authenticated" });
+      return res.status(401).json({ status: 401, error: "You are not authenticated" });
 
     }
     const chats = await client.getChats();
     if (!chats.length > 0) {
-      return res.status(200).json({ data: "No chats" });
+      return res.status(200).json({ status: 200, data: "No chats" });
 
     }
     res.send(chats);
@@ -103,7 +103,10 @@ client.on("ready", () => {
     if (chats?.length) {
       isAuthenticated = chats[0]?.lastMessage.to;
     }
-    return res.status(200).json({ data: isAuthenticated });
+    return res.status(200).json({
+      status: 200,
+      data: isAuthenticated
+    });
   });
 
 });
@@ -113,7 +116,7 @@ client.on("ready", () => {
 
 app.get('/logout', async (req, res) => {
   if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
 
   }
   await client.logout();
@@ -123,28 +126,28 @@ app.get('/logout', async (req, res) => {
   exec('sudo -u nodejs pm2 restart hello', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing command: ${error.message}`);
-      return res.status(500).json({ error: 'Error executing command' });
+      return res.status(500).json({ status: 500, error: 'Error executing command' });
     }
     if (stderr) {
       console.error(`Command execution error: ${stderr}`);
-      return res.status(500).json({ error: 'Command execution error' });
+      return res.status(500).json({ status: 500, error: 'Command execution error' });
     }
     console.log(`Command output: ${stdout}`);
-    return res.json({ message: 'Logout successful' });
+    return res.status(200).json({ status: 200, data: 'Logout successful' });
   });
 });
 
 
 app.post("/send-message", async (req, res) => {
   if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
 
   }
   // number should be group id like 120363164648354136@g.us or account id like  201150064746@c.us
   const result = await client.sendMessage(req.body.number, req.body.message);
   console.log(result)
   if (result) {
-    return res.status(200).json({ data: "Message sent successfully!" });
+    return res.status(200).json({ status: 200, data: "Message sent successfully!" });
   }
 });
 
@@ -152,12 +155,12 @@ app.post("/send-message", async (req, res) => {
 app.post("/send-group-message", async (req, res) => {
   // Check if the user is authenticated (implementation required)
   if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
   }
 
   // Check if the groupName is provided
   if (!req.body.groupName) {
-    return res.status(400).json({ error: "groupName required" });
+    return res.status(400).json({ status: 400, error: "groupName required" });
   }
 
   // Get a list of all of the user's chats
@@ -165,7 +168,7 @@ app.post("/send-group-message", async (req, res) => {
 
   // Check if the chats array is empty
   if (chats.length === 0) {
-    return res.status(404).json({ error: "No chats found" });
+    return res.status(404).json({ status: 404, error: "No chats found" });
   }
 
   // Find the group chat by name
@@ -173,7 +176,7 @@ app.post("/send-group-message", async (req, res) => {
 
   // Check if the group chat is found
   if (!groupChat) {
-    return res.status(404).json({ error: "Group not found" });
+    return res.status(404).json({ status: 404, error: "Group not found" });
   }
 
   // Get the group ID
@@ -184,12 +187,12 @@ app.post("/send-group-message", async (req, res) => {
 
   // Check if there was an error sending the message
   if (result === undefined) {
-    return res.status(500).json({ error: "Error sending message" });
+    return res.status(500).json({ status: 500, error: "Error sending message" });
   }
 
   // Send a success response
   const successMessage = "Message sent successfully!";
-  return res.json({ data: successMessage });
+  return res.status(200).json({ status: 200, data: successMessage });
 });
 
 
@@ -199,11 +202,11 @@ app.post("/send-to-all", async (req, res) => {
   // if you passed group name will find it's id and send it
   // if group name not passed it will use saved groupId from created group endpoint
   if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
 
   }
   if (!req.body.sendToContacts && !req.body.sendToContacts) {
-    return res.status(400).json({ error: "shoul pass sendToContacts or  sendToContacts" });
+    return res.status(400).json({ status: 400, error: "shoul pass sendToContacts or  sendToContacts" });
 
   }
 
@@ -229,7 +232,7 @@ app.post("/send-to-all", async (req, res) => {
 
 app.post("/create-group", async (req, res) => {
   if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
 
   }
   const group = await client.createGroup(req.body.group_name, req.body.members);
@@ -237,7 +240,7 @@ app.post("/create-group", async (req, res) => {
   // save groupId so we can use it later when use sendmessagetogroup {{url}}/send-message-to-group
   const groupId = group.gid._serialized;
 
-  return res.status(200).json({ data: groupId });
+  return res.status(200).json({ status: 200, data: groupId });
 
 });
 
