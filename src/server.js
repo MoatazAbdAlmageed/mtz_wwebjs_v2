@@ -56,7 +56,7 @@ client.on("qr", (qr) => {
 
 app.get("/raw-qr-code", (req, res) => {
   if (!qrCodeData) {
-    return res.status(401).json({ status: 401, error: "o QR Code RECEIVE" });
+    return res.status(401).json({ status: 401, error: "No QR Code RECEIVE" });
   }
   // Send the QR code as a response
   res.send(qrCodeData);
@@ -66,7 +66,7 @@ app.get("/raw-qr-code", (req, res) => {
 app.get("/qr-code", (req, res) => {
   // Generate QR codei
   if (!qrCodeData) {
-    return res.status(401).json({ status: 401, error: "o QR Code RECEIVE" });
+    return res.status(401).json({ status: 401, error: "No QR Code RECEIVE" });
 
   }
   qrcode.generate(qrCodeData, { small: true }, (qrCode) => {
