@@ -76,45 +76,39 @@ app.get("/qr-code", (req, res) => {
 });
 
 
-app.get("/get-chats", async (req, res) => {
-  if (!isAuthenticated) {
-    return res.status(401).json({ error: "You are not authenticated" });
-
-  }
-  const chats = await client.getChats();
-  if (!chats.length > 0) {
-    return res.status(200).json({ data: "No chats" });
-
-  }
-  res.send(chats);
-
-});
-
-app.get("/is-authenticated", async (req, res) => {
-  const chats = await client.getChats();
-  if (chats?.length) {
-    console.log(chats[0])
-    isAuthenticated = chats[0]?.lastMessage.to;
-  }
-  return res.status(200).json({ data: isAuthenticated });
-});
 
 client.on("ready", () => {
   console.log("client.ready");
 
   console.log("Client is ready!");
+
+
+
+  app.get("/get-chats", async (req, res) => {
+    if (!isAuthenticated) {
+      return res.status(401).json({ error: "You are not authenticated" });
+
+    }
+    const chats = await client.getChats();
+    if (!chats.length > 0) {
+      return res.status(200).json({ data: "No chats" });
+
+    }
+    res.send(chats);
+
+  });
+
+  app.get("/is-authenticated", async (req, res) => {
+    const chats = await client.getChats();
+    if (chats?.length) {
+      isAuthenticated = chats[0]?.lastMessage.to;
+    }
+    return res.status(200).json({ data: isAuthenticated });
+  });
+
 });
 
 
-// app.post("/logout", async (req, res) => {
-//   if (!isAuthenticated) {
-//     return res.status(401).json({ error: "You are not authenticated" });
-
-//   }
-//   await client.destroy();
-//   isAuthenticated = false;
-//   return res.status(200).json({ data: "logout done successfully!" });
-// });
 
 
 app.get('/logout', async (req, res) => {
@@ -239,12 +233,12 @@ app.post("/create-group", async (req, res) => {
 
   }
   const group = await client.createGroup(req.body.group_name, req.body.members);
-  console.log(group);
 
   // save groupId so we can use it later when use sendmessagetogroup {{url}}/send-message-to-group
   const groupId = group.gid._serialized;
 
-  res.send(groupId);
+  return res.status(200).json({ data: groupId });
+
 });
 
 
