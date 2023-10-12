@@ -689,13 +689,13 @@ client.initialize();
 
 
 
-const privateKey = fs.readFileSync('/root/server.key', 'utf8');
-const certificate = fs.readFileSync('/root/server.crt', 'utf8');
+const privateKey = fs.readFileSync(`${__dirname}/server.key`, 'utf8');
+const certificate = fs.readFileSync(`${__dirname}/server.crt`, 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 
 https.createServer({ credentials }, app)
   .listen(port, function () {
-    console.log("Server started at port 3000");
+    console.log(`Server started at port ${port}`);
   });
 
