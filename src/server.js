@@ -12,6 +12,7 @@ let isAuthenticated = false;
 const port = 3000;
 let currentClientPhoneNumber = "";
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 // TODO: use corsOptions
 // const corsOptions = {
