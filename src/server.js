@@ -696,7 +696,7 @@ const credentials = { key: privateKey, cert: certificate };
 //   });
 
 https.createServer({ credentials }, (req, res) => {
-  // Use the Express app object to handle the request and send the response
+  console.log("createServer");
   app(req, res);
 }).listen(port, function () {
   console.log(`Server started at port ${port}`);
