@@ -680,9 +680,9 @@ app.get("/", (req, res) => {
 client.initialize();
 
 // Start the server
-// app.listen(port, () => {
-//   console.log(`Server listening on port ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
 
 // const options = {
 //   key: fs.readFileSync('key.pem'),
@@ -691,13 +691,13 @@ client.initialize();
 
 
 
-const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
-const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
-const credentials = { key: privateKey, cert: certificate };
+// const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
+// const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
+// const credentials = { key: privateKey, cert: certificate };
 
 
-https.createServer({ credentials }, app)
-  .listen(port, function () {
-    console.log(`Server started at port ${port}`);
-  });
+// https.createServer({ credentials }, app)
+//   .listen(port, function () {
+//     console.log(`Server started at port ${port}`);
+//   });
 
