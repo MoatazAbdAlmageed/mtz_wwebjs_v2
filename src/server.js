@@ -675,7 +675,7 @@ client.on("group_admin_changed", (notification) => {
 
 // Define routes
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.send("Hello from whatsapp-web.js!");
 });
 client.initialize();
 
