@@ -2,6 +2,7 @@ const express = require("express");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const https = require("https");
+var http = require('http');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -680,9 +681,9 @@ app.get("/", (req, res) => {
 client.initialize();
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server listening on port ${port}`);
+// });
 
 // const options = {
 //   key: fs.readFileSync('key.pem'),
@@ -691,9 +692,16 @@ app.listen(port, () => {
 
 
 
-// const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
-// const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
-// const credentials = { key: privateKey, cert: certificate };
+const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
+const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
+const credentials = { key: privateKey, cert: certificate };
+
+
+
+// Create an HTTP service.
+http.createServer(app).listen(80);
+// Create an HTTPS service identical to the HTTP service.
+https.createServer(credentials, app).listen(443);
 
 
 // https.createServer({ credentials }, app)
