@@ -13,7 +13,7 @@ let isAuthenticated = false;
 const port = 3000;
 let currentClientPhoneNumber = "";
 
-// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 // TODO: use corsOptions
 // const corsOptions = {
@@ -680,18 +680,18 @@ app.get("/", (req, res) => {
 client.initialize();
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server listening on port ${port}`);
+// });
 
 
-// const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
-// const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
-// const credentials = { key: privateKey, cert: certificate };
+const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
+const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
+const credentials = { key: privateKey, cert: certificate };
 
-
-// https.createServer({ credentials }, app)
-//   .listen(port, function () {
-//     console.log(`Server started at port ${port}`);
-//   });
+console.log(credentials);
+https.createServer({ credentials }, app)
+  .listen(port, function () {
+    console.log(`Server started at port ${port}`);
+  });
 
