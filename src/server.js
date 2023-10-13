@@ -3,6 +3,7 @@ const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const https = require("https");
 const cors = require('cors');
+const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
 
@@ -12,7 +13,7 @@ let isAuthenticated = false;
 const port = 3000;
 let currentClientPhoneNumber = "";
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 // TODO: use corsOptions
 // const corsOptions = {
@@ -690,8 +691,8 @@ client.initialize();
 
 
 
-const privateKey = fs.readFileSync('/etc/ssl/private/server.key', 'utf8');
-const certificate = fs.readFileSync('/etc/ssl/certs/server.crt', 'utf8');
+const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
+const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
 const credentials = { key: privateKey, cert: certificate };
 
 
