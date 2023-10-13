@@ -689,9 +689,16 @@ const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
 const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
 const credentials = { key: privateKey, cert: certificate };
 
-console.log(credentials);
-https.createServer({ credentials }, app)
-  .listen(port, function () {
-    console.log(`Server started at port ${port}`);
-  });
+// console.log(credentials);
+// https.createServer({ credentials }, app)
+//   .listen(port, function () {
+//     console.log(`Server started at port ${port}`);
+//   });
+
+https.createServer({ credentials }, (req, res) => {
+  // Use the Express app object to handle the request and send the response
+  app(req, res);
+}).listen(port, function () {
+  console.log(`Server started at port ${port}`);
+});
 
