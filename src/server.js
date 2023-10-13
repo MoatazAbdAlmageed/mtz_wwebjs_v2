@@ -699,11 +699,14 @@ const credentials = { key: privateKey, cert: certificate };
 
 
 // Create an HTTP service.
-http.createServer(app).listen(80);
+// http.createServer(app).listen(80);
 // Create an HTTPS service identical to the HTTP service.
-https.createServer(credentials, app).listen(443);
+// https.createServer(credentials, app).listen(443);
 
-
+https.createServer(credentials, (req, res) => {
+  res.writeHead(200);
+  res.end('hello world\n');
+}).listen(3000);
 // https.createServer({ credentials }, app)
 //   .listen(port, function () {
 //     console.log(`Server started at port ${port}`);
