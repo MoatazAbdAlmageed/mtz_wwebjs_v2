@@ -1,6 +1,7 @@
 const express = require("express");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
+const http = require('http');
 const https = require("https");
 const cors = require('cors');
 const path = require('path');
@@ -10,10 +11,9 @@ const { exec } = require('child_process');
 const app = express();
 let qrCodeData = "";
 let isAuthenticated = false;
-const port = 3000;
 let currentClientPhoneNumber = "";
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 // TODO: use corsOptions
 // const corsOptions = {
@@ -688,17 +688,16 @@ client.initialize();
 const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
 const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
 const credentials = { key: privateKey, cert: certificate };
-
-// console.log(credentials);
-// https.createServer({ credentials }, app)
-//   .listen(port, function () {
-//     console.log(`Server started at port ${port}`);
-//   });
-
-https.createServer({ credentials }, (req, res) => {
-  console.log("createServer");
-  app(req, res);
-}).listen(port, function () {
-  console.log(`Server started at port ${port}`);
+const httpsServer = https.createServer(credentials, (req, res) => {
+  res.writeHead(200);
+  res.end('Hello, world!');
 });
+
+const httpServer = http.createServer((req, res) => {
+  res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+  res.end();
+});
+
+httpServer.listen(3000);
+httpsServer.listen(443);
 
