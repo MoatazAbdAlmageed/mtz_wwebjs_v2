@@ -701,8 +701,6 @@ const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'server.key'));
 const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'server.crt'));
 const credentials = { key: privateKey, cert: certificate };
 
-console.log(privateKey);
-console.log(certificate);
 const httpsServer = https.createServer(credentials, app);
 
 const httpServer = http.createServer((req, res) => {
