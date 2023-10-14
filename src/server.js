@@ -697,6 +697,11 @@ client.initialize();
 // });
 
 
+// const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
+// const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
+// const credentials = { key: privateKey, cert: certificate };
+
+console.log(fs.readFileSync('server.key'));
 const httpsServer = https.createServer({
   key: fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.crt')
