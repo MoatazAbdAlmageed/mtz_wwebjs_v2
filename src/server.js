@@ -698,5 +698,4 @@ const httpServer = http.createServer((req, res) => {
 
 httpServer.listen(3000);
 httpsServer.listen(443);
-httpsServer.listen(443);
 
