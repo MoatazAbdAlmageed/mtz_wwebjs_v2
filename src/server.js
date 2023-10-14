@@ -34,18 +34,18 @@ app.use(express.static('.well-known'))
 const client = new Client({
   authStrategy: new LocalAuth(),
   restartOnAuthFail: true, // related problem solution
-  puppeteer: {
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--disable-gpu'
-    ]
-  }
+  // puppeteer: {
+  //   headless: true,
+  //   args: [
+  //     '--no-sandbox',
+  //     '--disable-setuid-sandbox',
+  //     '--disable-dev-shm-usage',
+  //     '--disable-accelerated-2d-canvas',
+  //     '--no-first-run',
+  //     '--no-zygote',
+  //     '--disable-gpu'
+  //   ]
+  // }
 });
 
 
