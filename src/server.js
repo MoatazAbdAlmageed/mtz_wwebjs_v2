@@ -694,6 +694,10 @@ app.get('/.well-known/acme-challenge/1iAY6aAGF8au8aNjV7g2LcBrOUqXwh5EgavgTdHJnb8
   const challengeToken = '1iAY6aAGF8au8aNjV7g2LcBrOUqXwh5EgavgTdHJnb8.BTgfXIE9hpOfbt2Tc4z1Grak0b3SD3RQdbJWp3Qrwko';
   res.send(challengeToken);
 
+}); app.get('/.well-known/acme-challenge/5HbWTQESCjwE_8vA7hYL6YovVKDOwr0gxwNGdkjW2GY', (req, res) => {
+  const challengeToken = '5HbWTQESCjwE_8vA7hYL6YovVKDOwr0gxwNGdkjW2GY.BTgfXIE9hpOfbt2Tc4z1Grak0b3SD3RQdbJWp3Qrwko';
+  res.send(challengeToken);
+
 });
 client.initialize();
 
