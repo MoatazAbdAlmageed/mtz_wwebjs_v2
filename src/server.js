@@ -25,7 +25,7 @@ let currentClientPhoneNumber = "";
 
 app.use(cors());
 app.use('/.well-known', express.static(__dirname + '/.well-known'));
-
+app.use("/public", express.static(path.join(__dirname, 'public')));
 
 // Start the client
 
