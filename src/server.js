@@ -27,6 +27,7 @@ let currentClientPhoneNumber = "";
 app.use(cors());
 app.use('/.well-known', express.static('.well-known'), serveIndex('.well-known'));
 
+app.use(express.static('.well-known'))
 
 // Start the client
 const client = new Client({
