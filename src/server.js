@@ -688,10 +688,8 @@ client.initialize();
 const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
 const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
 const credentials = { key: privateKey, cert: certificate };
-const httpsServer = https.createServer(credentials, (req, res) => {
-  res.writeHead(200);
-  res.end('Hello, world!');
-});
+
+const httpsServer = https.createServer(credentials, app);
 
 const httpServer = http.createServer((req, res) => {
   res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
