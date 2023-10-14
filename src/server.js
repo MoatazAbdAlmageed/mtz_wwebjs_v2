@@ -7,6 +7,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+var serveIndex = require('serve-index');
 
 const app = express();
 let qrCodeData = "";
@@ -24,6 +25,7 @@ let currentClientPhoneNumber = "";
 // app.use(cors(corsOptions));
 
 app.use(cors());
+app.use('/.well-known', express.static('.well-known'), serveIndex('.well-known'));
 
 
 // Start the client
