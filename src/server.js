@@ -24,7 +24,6 @@ let currentClientPhoneNumber = "";
 // app.use(cors(corsOptions));
 
 app.use(cors());
-app.use(express.static('.well-known'))
 app.use('/.well-known', express.static('.well-known'));
 
 
