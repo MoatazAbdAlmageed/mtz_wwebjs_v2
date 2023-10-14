@@ -34,18 +34,18 @@ app.use(express.static('.well-known'))
 const client = new Client({
   authStrategy: new LocalAuth(),
   restartOnAuthFail: true, // related problem solution
-  // puppeteer: {
-  //   headless: true,
-  //   args: [
-  //     '--no-sandbox',
-  //     '--disable-setuid-sandbox',
-  //     '--disable-dev-shm-usage',
-  //     '--disable-accelerated-2d-canvas',
-  //     '--no-first-run',
-  //     '--no-zygote',
-  //     '--disable-gpu'
-  //   ]
-  // }
+  puppeteer: {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
+  }
 });
 
 
@@ -688,6 +688,12 @@ client.on("group_admin_changed", (notification) => {
 // Define routes
 app.get("/", (req, res) => {
   res.send("Hello from whatsapp-web.js!");
+});
+
+app.get('/.well-known/acme-challenge/1iAY6aAGF8au8aNjV7g2LcBrOUqXwh5EgavgTdHJnb8', (req, res) => {
+  const challengeToken = '1iAY6aAGF8au8aNjV7g2LcBrOUqXwh5EgavgTdHJnb8.BTgfXIE9hpOfbt2Tc4z1Grak0b3SD3RQdbJWp3Qrwko';
+  res.send(challengeToken);
+
 });
 client.initialize();
 
