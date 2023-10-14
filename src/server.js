@@ -24,6 +24,7 @@ let currentClientPhoneNumber = "";
 // app.use(cors(corsOptions));
 
 app.use(cors());
+app.use(express.static(__dirname, { dotfiles: 'allow' }));
 
 // Start the client
 
