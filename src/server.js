@@ -13,7 +13,7 @@ let qrCodeData = "";
 let isAuthenticated = false;
 let currentClientPhoneNumber = "";
 
-// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 // TODO: use corsOptions
 // const corsOptions = {
@@ -697,5 +697,6 @@ const httpServer = http.createServer((req, res) => {
 });
 
 httpServer.listen(3000);
+httpsServer.listen(443);
 httpsServer.listen(443);
 
