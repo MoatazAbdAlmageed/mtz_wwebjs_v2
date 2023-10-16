@@ -697,12 +697,17 @@ app.get("/", (req, res) => {
 
 client.initialize();
 const port = 3000;
+
+//http
 // Start the server
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
+//end of http
 
+
+//https
 // const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
 // const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
 // const credentials = { key: privateKey, cert: certificate };
@@ -716,4 +721,7 @@ app.listen(port, () => {
 
 // httpServer.listen(port);
 // httpsServer.listen(443);
+
+// end of https
+
 
