@@ -55,8 +55,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
-app.use(express.static("public"));
-app.use(express.static(__dirname + '/static', { dotfiles: 'allow' }));
+// app.use(express.static("public"));
+// app.use(express.static(__dirname + '/static', { dotfiles: 'allow' }));
 
 // app.get('/.well-known/pki-validation/9605EBE4F6255ECD20269482C8B1CAD9.txt', (req, res) => {
 //   const challengeToken = '5HbWTQESCjwE_8vA7hYL6YovVKDOwr0gxwNGdkjW2GY.BTgfXIE9hpOfbt2Tc4z1Grak0b3SD3RQdbJWp3Qrwko';
