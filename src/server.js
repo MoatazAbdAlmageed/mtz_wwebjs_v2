@@ -696,7 +696,7 @@ app.get("/", (req, res) => {
 });
 
 client.initialize();
-
+const port = 3000;
 // Start the server
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
@@ -714,6 +714,6 @@ app.listen(port, () => {
 //   res.end();
 // });
 
-// httpServer.listen(3000);
+// httpServer.listen(port);
 // httpsServer.listen(443);
 
