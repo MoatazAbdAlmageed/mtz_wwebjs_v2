@@ -26,10 +26,18 @@ let currentClientPhoneNumber = "";
 app.use(cors());
 app.use(express.static(__dirname, { dotfiles: 'allow' }));
 
+// Serve static files
+// app.use(express.static("public"));
+// app.use(express.static(__dirname + '/static', { dotfiles: 'allow' }));
+
+// app.get('/.well-known/pki-validation/9605EBE4F6255ECD20269482C8B1CAD9.txt', (req, res) => {
+//   const challengeToken = '5HbWTQESCjwE_8vA7hYL6YovVKDOwr0gxwNGdkjW2GY.BTgfXIE9hpOfbt2Tc4z1Grak0b3SD3RQdbJWp3Qrwko';
+//   res.send(challengeToken);
+
+// });
+
+
 // Start the client
-
-
-
 const client = new Client({
   authStrategy: new LocalAuth(),
   restartOnAuthFail: true, // related problem solution
@@ -54,15 +62,6 @@ const client = new Client({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
-// app.use(express.static("public"));
-// app.use(express.static(__dirname + '/static', { dotfiles: 'allow' }));
-
-// app.get('/.well-known/pki-validation/9605EBE4F6255ECD20269482C8B1CAD9.txt', (req, res) => {
-//   const challengeToken = '5HbWTQESCjwE_8vA7hYL6YovVKDOwr0gxwNGdkjW2GY.BTgfXIE9hpOfbt2Tc4z1Grak0b3SD3RQdbJWp3Qrwko';
-//   res.send(challengeToken);
-
-// });
 
 client.on("qr", (qr) => {
   console.log("client.qr");
@@ -699,22 +698,22 @@ app.get("/", (req, res) => {
 client.initialize();
 
 // Start the server
-// app.listen(port, () => {
-//   console.log(`Server listening on port ${port}`);
-// });
-
-
-const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
-const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
-const credentials = { key: privateKey, cert: certificate };
-
-const httpsServer = https.createServer(credentials, app);
-
-const httpServer = http.createServer((req, res) => {
-  res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-  res.end();
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });
 
-httpServer.listen(3000);
-httpsServer.listen(443);
+
+// const privateKey = fs.readFileSync(path.join(__dirname, 'crt', 'key.pem'));
+// const certificate = fs.readFileSync(path.join(__dirname, 'crt', 'cert.pem'));
+// const credentials = { key: privateKey, cert: certificate };
+
+// const httpsServer = https.createServer(credentials, app);
+
+// const httpServer = http.createServer((req, res) => {
+//   res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+//   res.end();
+// });
+
+// httpServer.listen(3000);
+// httpsServer.listen(443);
 
