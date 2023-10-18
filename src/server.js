@@ -7,7 +7,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
-
+const clientready = false;
 const app = express();
 let qrCodeData = "";
 let isAuthenticated = false;
@@ -96,6 +96,12 @@ app.get("/qr-code", (req, res) => {
 
 
 app.get("/is-authenticated", async (req, res) => {
+  if (!clientready) {
+    return res.status(200).json({
+      status: 200,
+      data: false
+    });
+  }
   console.log(client)
   const chats = await client.getChats();
   if (chats?.length) {
@@ -109,6 +115,7 @@ app.get("/is-authenticated", async (req, res) => {
 
 
 client.on("ready", () => {
+  clientready = true;
   console.log("client.ready");
 
   console.log("Client is ready!");
