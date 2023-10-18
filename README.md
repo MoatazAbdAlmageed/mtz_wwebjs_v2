@@ -24,8 +24,8 @@ To run this app locally, follow these steps:
 
 1. Clone the repository: `git clone <repository-url>`
 2. Install dependencies: `npm install`
-3. edit `/var/www/html/hello.js` and add this line : `require('./mtz_wwebjs/src/server.js');`
-4. Start the server: `cd /var/www/html/mtz_wwebjs/ && git pull && yarn  && sudo -u nodejs pm2 restart hello`
+3. edit `vim /var/www/html/hello.js` and add this line : `require('./mtz_wwebjs/src/server.js');`
+4. Start the server: `npm install --global yarn && cd /var/www/html/mtz_wwebjs/ && git pull && yarn  && sudo -u nodejs pm2 restart hello`
 
 ## Usage
 

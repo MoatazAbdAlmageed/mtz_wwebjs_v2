@@ -95,6 +95,18 @@ app.get("/qr-code", (req, res) => {
 });
 
 
+app.get("/is-authenticated", async (req, res) => {
+  console.log(client)
+  const chats = await client.getChats();
+  if (chats?.length) {
+    isAuthenticated = chats[0]?.lastMessage.to;
+  }
+  return res.status(200).json({
+    status: 200,
+    data: isAuthenticated
+  });
+});
+
 
 client.on("ready", () => {
   console.log("client.ready");
@@ -117,16 +129,7 @@ client.on("ready", () => {
 
   });
 
-  app.get("/is-authenticated", async (req, res) => {
-    const chats = await client.getChats();
-    if (chats?.length) {
-      isAuthenticated = chats[0]?.lastMessage.to;
-    }
-    return res.status(200).json({
-      status: 200,
-      data: isAuthenticated
-    });
-  });
+
 
 });
 
