@@ -178,7 +178,9 @@ app.post("/send-message", async (req, res) => {
   if (result) {
     return res.status(200).json({ status: 200, data: "Message sent successfully!" });
   }
-}); app.post("/send-message-to-many", async (req, res) => {
+});
+
+app.post("/send-message-to-many", async (req, res) => {
   if (!isAuthenticated) {
     return res.status(401).json({ status: 401, error: "You are not authenticated" });
 
@@ -188,9 +190,8 @@ app.post("/send-message", async (req, res) => {
 
   for (const number of req.body.numbers) {
     const convertedNumber = number.replace(/ /g, "").replace("+", "") + "@c.us";
-    let rand;
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
     setTimeout(() => {
-      rand = Math.round(Math.random() * (3000 - 500)) + 500;
       console.log('setTimeout');
     }, rand);
     await client.sendMessage(convertedNumber, req.body.message);
@@ -198,6 +199,27 @@ app.post("/send-message", async (req, res) => {
   }
 
   return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+app.post("/archive-many", async (req, res) => {
+  if (!isAuthenticated) {
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
+
+  }
+  // number should be group id like 120363164648354136@g.us or account id like  201150064746@c.us
+
+
+  for (const number of req.body.numbers) {
+    const convertedNumber = number.replace(/ /g, "").replace("+", "") + "@c.us";
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
+    setTimeout(() => {
+      console.log('setTimeout');
+    }, rand);
+    await client.archiveChat(convertedNumber);
+
+  }
+
+  return res.status(200).json({ status: 200, data: "archiveChat done successfully!" });
 });
 
 
