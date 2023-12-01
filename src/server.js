@@ -1,5 +1,5 @@
 const express = require("express");
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const http = require('http');
 const https = require("https");
@@ -40,7 +40,7 @@ app.use(express.static(__dirname, { dotfiles: 'allow' }));
 // Start the client
 const client = new Client({
   authStrategy: new LocalAuth(),
-  restartOnAuthFail: true, // related problem solution
+  // restartOnAuthFail: true, // related problem solution
   puppeteer: {
     headless: true,
     args: [
@@ -179,27 +179,120 @@ app.post("/send-message", async (req, res) => {
     return res.status(200).json({ status: 200, data: "Message sent successfully!" });
   }
 });
-
 app.post("/send-message-to-many", async (req, res) => {
   if (!isAuthenticated) {
     return res.status(401).json({ status: 401, error: "You are not authenticated" });
-
   }
-  // number should be group id like 120363164648354136@g.us or account id like  201150064746@c.us
 
+  for (const member of req.body.members) {
+    const convertedNumber = member.phone.replace(/ /g, "").replace("+", "") + "@c.us";
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
+    console.log(convertedNumber);
+    console.log(req.body.message.replace("{{name}}", member.name))
+    await client.sendMessage(convertedNumber, req.body.message.replace("{{name}}", member.name));
+  }
+
+  return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+app.post("/send-message-to-many-phone-only", async (req, res) => {
+  if (!isAuthenticated) {
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
+  }
 
   for (const number of req.body.numbers) {
-    const convertedNumber = number.replace(/ /g, "").replace("+", "") + "@c.us";
+    const newNum = "+20" + number;
+    const convertedNumber = newNum.replace(/ /g, "").replace("+", "") + "@c.us";
     const rand = Math.round(Math.random() * (3000 - 500)) + 500;
-    setTimeout(() => {
-      console.log('setTimeout');
-    }, rand);
-    await client.sendMessage(convertedNumber, req.body.message);
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
+    // await client.sendMessage(convertedNumber, req.body.message);
+    await client.archiveChat(convertedNumber, req.body.message);
+  }
+
+  return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+app.post("/send-image-to-many", async (req, res) => {
+  if (!isAuthenticated) {
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
+  }
+
+  for (const member of req.body.members) {
+    const convertedNumber = member.phone.replace(/ /g, "").replace("+", "") + "@c.us";
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
+    console.log(convertedNumber);
+    // console.log(req.body.message.replace("{{name}}", member.name))
+    // await client.sendMessage(convertedNumber, req.body.message.replace("{{name}}", member.name));
+    // const media = await MessageMedia.fromUrl(req.body.image);
+    const media = await MessageMedia.fromUrl(req.body.image);
+    await client.sendMessage(convertedNumber, media)
+      .then((res) => console.log("Succesfully sent."))
+      .catch((error) => sole.log("Can not send message.", error))
+    console.log(req.body.image)
+    console.log(convertedNumber)
+    // client.sendMessage(media);
 
   }
 
   return res.status(200).json({ status: 200, data: "Message sent successfully!" });
 });
+
+app.post("/send-message-to-group-participants", async (req, res) => {
+  if (!isAuthenticated) {
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
+  }
+  let group;
+  const chats = await client.getChats();
+
+  const groupChat = chats.find((chat) => chat.isGroup && chat.name === req.body.groupName);
+
+  console.log(group);
+
+  for (const participant of groupChat.participants) {
+
+    const chatId = participant.id._serialized;
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
+    console.log(chatId);
+
+    if (chatId != "201150064746@c.us") {
+      await client.sendMessage(chatId, req.body.message);
+    }
+  }
+
+  return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+
+
+app.post("/archive-group-participants", async (req, res) => {
+  if (!isAuthenticated) {
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
+  }
+  let group;
+  const chats = await client.getChats();
+
+  const groupChat = chats.find((chat) => chat.isGroup && chat.name === req.body.groupName);
+
+  console.log(group);
+
+  for (const participant of groupChat.participants) {
+
+    const chatId = participant.id._serialized;
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
+    console.log(chatId);
+
+    await client.archiveChat(chatId);
+
+  }
+
+  return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+
 
 app.post("/archive-many", async (req, res) => {
   if (!isAuthenticated) {
@@ -212,9 +305,7 @@ app.post("/archive-many", async (req, res) => {
   for (const number of req.body.numbers) {
     const convertedNumber = number.replace(/ /g, "").replace("+", "") + "@c.us";
     const rand = Math.round(Math.random() * (3000 - 500)) + 500;
-    setTimeout(() => {
-      console.log('setTimeout');
-    }, rand);
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
     await client.archiveChat(convertedNumber);
 
   }
@@ -634,7 +725,8 @@ client.on("group_join", (notification) => {
 
   // User has joined or been added to the group.
   console.log("join", notification);
-  notification.reply("User joined.");
+  //notification.reply("User joined.");
+  console.log("User joined.");
 });
 
 client.on("group_leave", (notification) => {
@@ -642,7 +734,8 @@ client.on("group_leave", (notification) => {
 
   // User has left or been kicked from the group.
   console.log("leave", notification);
-  notification.reply("User left.");
+  //notification.reply("User left.");
+  console.log("User left.");
 });
 
 client.on("group_update", (notification) => {
