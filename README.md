@@ -27,16 +27,14 @@ To run this app locally, follow these steps:
 3. edit `vim /var/www/html/hello.js` and add this line : `require('./mtz_wwebjs/src/server.js');`
 4. Start the server: `npm install --global yarn && cd /var/www/html/mtz_wwebjs/ && git pull && yarn  && sudo -u nodejs pm2 restart hello`
 5. another way to run server `cd /var/www/html/mtz_wwebjs/src && nohup node server.js &`
-
+check https://github.com/pedroslopez/whatsapp-web.js/issues/972 
 ```bash
-sudo apt update
-sudo apt install -y \
-  gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 \
-  libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 \
-  libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 \
-  libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 \
-  libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation \
-  libnss3 lsb-release xdg-utils wget libatk-bridge2.0-0 libatk1.0-0 libatk-bridge2.0-0
+
+sudo apt-get install chromium-browser
+
+
+sudo apt-get install ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
+
 
 
 ```
