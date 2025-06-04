@@ -25,3 +25,7 @@ sudo apt install -y \
 
 
 sudo apt install nginx -y
+
+
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d info.your_domain.com
