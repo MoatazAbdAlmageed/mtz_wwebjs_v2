@@ -1,3 +1,11 @@
+cd /var/www
+sudo mkdir wwebjs
+sudo chown $USER:$USER wwebjs
+cd wwebjs
+
+
+
+
 # 2. Update and upgrade the system
 sudo apt update && sudo apt upgrade -y
 
