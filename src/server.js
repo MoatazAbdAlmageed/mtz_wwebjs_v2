@@ -12,6 +12,8 @@ const app = express();
 let qrCodeData = "";
 let isAuthenticated = false;
 let currentClientPhoneNumber = "";
+const QRCode = require("qrcode");
+const { createCanvas, loadImage } = require('canvas');
 
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
@@ -239,6 +241,41 @@ app.post("/send-image-to-many", async (req, res) => {
   return res.status(200).json({ status: 200, data: "Message sent successfully!" });
 });
 
+
+
+
+app.post("/send-certificate-to-many", async (req, res) => {
+  
+  if (!isAuthenticated) {
+    return res.status(401).json({ status: 401, error: "You are not authenticated" });
+  }
+
+  for (const member of req.body.members) {
+
+  const certificate =   await generateAvatarFromImage(member.name, {
+      name: payload.name,
+      cert: payload.cert,
+    });
+
+
+    const convertedNumber = member.phone.replace(/ /g, "").replace("+", "") + "@c.us";
+    const rand = Math.round(Math.random() * (3000 - 500)) + 500;
+    await new Promise((resolve) => setTimeout(resolve, rand)); // Wait for rand second
+    console.log(convertedNumber);
+
+    await client.sendMessage(convertedNumber, certificate)
+      .then((res) => console.log("Succesfully sent."))
+      .catch((error) => sole.log("Can not send message.", error))
+    console.log(req.body.image)
+    console.log(convertedNumber)
+    // client.sendMessage(media);
+
+  }
+
+  return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+
 app.post("/send-message-to-group-participants", async (req, res) => {
   if (!isAuthenticated) {
     return res.status(401).json({ status: 401, error: "You are not authenticated" });
@@ -263,6 +300,36 @@ app.post("/send-message-to-group-participants", async (req, res) => {
   }
 
   return res.status(200).json({ status: 200, data: "Message sent successfully!" });
+});
+
+
+
+app.get("/scan", async (req, res) => {
+  if (!qrCodeData) {
+    return res.send("<p>QR not generated yet. Please refresh in a few seconds.</p>");
+  }
+
+  try {
+    const qrImgDataUrl = await QRCode.toDataURL(qrCodeData);
+
+    res.send(`
+      <html>
+        <head>
+          <title>Scan WhatsApp QR</title>
+          <style>
+            body { display: flex; justify-content: center; align-items: center; height: 100vh; }
+            img { width: 300px; height: 300px; }
+          </style>
+        </head>
+        <body>
+          <img src="${qrImgDataUrl}" alt="WhatsApp QR Code"/>
+        </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error("QR Render Error:", err);
+    res.status(500).send("Error generating QR");
+  }
 });
 
 
@@ -834,6 +901,34 @@ client.on("group_admin_changed", (notification) => {
     /** Emitted when a current user is demoted to a regular user. */
     console.log(`You were demoted by ${notification.author}`);
 });
+
+
+async function generateAvatarFromImage(studentName, { name, cert }) {
+  const templatePath = path.join(__dirname, 'crt', cert);
+  const outputFolder = path.join(__dirname, 'crt', out_folder);
+  const outputPath = path.join(outputFolder, `${studentName}.png`);
+
+  fs.mkdirSync(outputFolder, { recursive: true });
+
+  const image = await loadImage(templatePath);
+  const canvas = createCanvas(image.width, image.height);
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(image, 0, 0);
+
+  ctx.font = `${name.size}px "Cairo"`;
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  ctx.fillText(studentName, image.width / 2, name.y);
+
+  const buffer = canvas.toBuffer('image/png');
+  fs.writeFileSync(outputPath, buffer);
+
+  return outputPath;
+}
+
 
 // Define routes
 app.get("/", (req, res) => {

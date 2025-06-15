@@ -1,0 +1,15 @@
+{
+    "cert": "card.png",
+    "fontLink": "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo-Regular.ttf",
+    "members": [
+      {
+        "name": "معتز محم   دالمجيد عبدالجيد",
+        "phone": "1150064746"
+      }
+    ],
+    "out_folder": "generated",
+    "name": {
+      "size": 42,
+      "y": 300
+    }
+  }
